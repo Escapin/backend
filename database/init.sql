@@ -1,3 +1,5 @@
+CREATE DATABASE Escapin;
+
 CREATE TABLE users(
     id BIGINT identity unique not null PRIMARY KEY,
     pseudo text unique not null,
@@ -12,19 +14,21 @@ CREATE TABLE users(
     created_at timestamptz not null default now()
 );
 
+CREATE TYPE visibilite_type as ENUM('friends','private','public')
+
 CREATE TABLE pin(
     id BIGINT IDENTITY not null PRIMARY KEY,
     id_user bigint not null, //fk
     id_voyage bigint, //fk
     titre text not null,
-    description text,
+    description_pin text,
     lieux text,
     country_code text,
     latitude double not null,
     longitude double not null,
-    geom GEOGRAPHY(Point, 4326) not null,
-    date DATETIME2 not null default CURRENT_DATE,
-    visibilite visibilite_type not null, //faire une enum
+    geom GEOGRAPHY(Point, 4326) not null, //a comprendre
+    date_pin DATETIME2 not null default CURRENT_DATE,
+    visibilite visibilite_type not null,
     favori boolean not null DEFAULT false,
     created_at timestamptz not null default now()
 );
@@ -37,10 +41,12 @@ CREATE TABLE images(
     created_at timestamptz not null default now()
 );
 
+CREATE TYPE friend_status AS ENUM('Accepter','Refuser')
+
 CREATE TABLE liste_amis(
     id_user bigint not null, //FOREIGN KEY
     id_friend bigint not null, //FOREIGN KEY
-    status friend_status not null, //enum
+    status friend_status not null,
     created_at timestamptz not null default now()
 );
 
@@ -48,6 +54,8 @@ CREATE TABLE pin_participant(
     id_pin bigint not null, //FOREIGN KEY
     id_user bigint not, //FOREIGN KEY
 );
+
+CREATE TYPE provider_type as enum('','','')
 
 CREATE TABLE auth_provider(
     id_user BIGINT not null, //FOREIGN KEY
