@@ -1,0 +1,55 @@
+openapi: "3.0.3"
+info:
+  title: "Escapin API"
+  description: "Escapin API"
+  version: "1.0.0"
+servers:
+  - url: "http://0.0.0.0:8080"
+paths:
+  /:
+    get:
+      description: "Racine de l'API"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            text/plain:
+              schema:
+                type: "string"
+  /test:
+    get:
+      description: "Ping sans base de données"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingResponse"
+  /test/db:
+    get:
+      description: "Vérifie la connexion DB et compte les users"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DbCheckResponse"
+        "500":
+          description: "Base inaccessible ou schéma non appliqué"
+components:
+  schemas:
+    PingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+    DbCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        userCount:
+          type: integer
+          format: int64

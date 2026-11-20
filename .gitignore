@@ -19,9 +19,53 @@
 *.tar.gz
 *.rar
 
+# Le wrapper Gradle doit rester versionné malgré la règle *.jar
+!gradle/wrapper/gradle-wrapper.jar
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
 
 # Kotlin Gradle plugin data, see https://kotlinlang.org/docs/whatsnew20.html#new-directory-for-kotlin-data-in-gradle-projects
 .kotlin/
+
+h2.mv.db
+
+# Gradle
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Autres IDE
+.vscode/
+.project
+.classpath
+.settings/
+.fleet/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets et configuration locale (ne jamais committer)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+application-local.yaml
+application-local.conf
+
+# Uploads locaux éventuels
+uploads/

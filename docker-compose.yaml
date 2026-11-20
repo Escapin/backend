@@ -1,0 +1,16 @@
+services:
+  postgres-dev:
+    image: postgis/postgis:15-3.3
+    container_name: database_dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mySecretPassword
+      POSTGRES_DB: escapin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
