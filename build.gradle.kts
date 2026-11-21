@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.r2dbc.postgresql)
     implementation(libs.exposed.java.time)
+    implementation(libs.r2dbc.spi)
+    implementation(libs.argon2)
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)
