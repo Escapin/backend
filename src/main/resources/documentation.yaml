@@ -4,7 +4,7 @@ info:
   description: "Escapin API"
   version: "1.0.0"
 servers:
-  - url: "http://0.0.0.0:8080"
+  - url: "http://0.0.0.0:8080/api/v1"
 paths:
   /:
     get:
@@ -16,28 +16,6 @@ paths:
             text/plain:
               schema:
                 type: "string"
-  /test:
-    get:
-      description: "Ping sans base de données"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PingResponse"
-  /test/db:
-    get:
-      description: "Vérifie la connexion DB et compte les users"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DbCheckResponse"
-        "500":
-          description: "Base inaccessible ou schéma non appliqué"
 components:
   schemas:
     PingResponse:

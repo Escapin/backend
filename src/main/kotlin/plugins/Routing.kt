@@ -3,19 +3,33 @@ package plugins
 import features.auth.AuthService
 import features.auth.authRoutes
 import features.users.UserRepository
+import features.users.UserService
+import features.users.userRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import security.CompromisedPasswordChecker
+import security.PasswordHasher
 
 fun Application.configureRouting(database: R2dbcDatabase) {
     val userRepository = UserRepository(database)
+
     val authService = AuthService(userRepository)
+    val userService = UserService(
+        userRepository = userRepository,
+        passwordHasher = PasswordHasher(),
+        compromisedPasswordChecker = CompromisedPasswordChecker()
+    )
 
     routing {
         get("/") {
             call.respondText("Escapin API")
         }
-        authRoutes(authService)
+
+        route("/api/v1") {
+            authRoutes(authService)
+            userRoutes(userService)
+        }
     }
 }

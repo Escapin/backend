@@ -12,7 +12,8 @@ enum class Visibilite(val db: String) {
 
 enum class ProviderType(val db: String) {
     GOOGLE("google"),
-    FACEBOOK("facebook"),
+    GITHUB("github"),
+    APPLE("apple"),
     US("us");
 
     companion object {

@@ -1,12 +1,29 @@
 package features.users
 
+import database.tables.AuthProviders
+import database.tables.ProviderType
+import database.tables.Users
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 class UserRepository(private val database: R2dbcDatabase) {
+    suspend fun existsByPseudo(pseudo: String): Boolean = suspendTransaction(database) {
+        Users.selectAll().where {
+            Users.pseudo.lowerCase() eq pseudo.lowercase()
+        }.count() > 0
+    }
 
-    suspend fun existsByPseudo(pseudo: String): Boolean = TODO()
-
-    suspend fun existsByEmail(email: String): Boolean = TODO()
+    suspend fun existsByEmail(email: String): Boolean = suspendTransaction(database) {
+        Users.selectAll().where {
+            Users.email.lowerCase() eq email.lowercase()
+        }.count() > 0
+    }
 
     suspend fun create(
         pseudo: String,
@@ -14,5 +31,23 @@ class UserRepository(private val database: R2dbcDatabase) {
         passwordHash: String,
         name: String?,
         surname: String?,
-    ): Long = TODO()
+    ): UserResponse = suspendTransaction(database) {
+        val inserted = Users.insert {
+            it[Users.pseudo] = pseudo
+            it[Users.email] = email
+            it[Users.passwordHash] = passwordHash
+            it[Users.name] = name
+            it[Users.surname] = surname
+            it[Users.cguAcceptedAt] = OffsetDateTime.now(ZoneOffset.UTC)
+        }
+        val userId = inserted[Users.id]
+
+        AuthProviders.insert {
+            it[AuthProviders.idUser] = userId
+            it[AuthProviders.provider] = ProviderType.US
+            it[AuthProviders.providerUid] = userId.value.toString()
+        }
+
+        UserResponse(id = userId.value, pseudo = pseudo, name = name, surname = surname)
+    }
 }
