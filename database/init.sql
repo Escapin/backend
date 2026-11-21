@@ -6,11 +6,11 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TYPE visibilite_type AS ENUM ('friends', 'private', 'public');
-CREATE TYPE provider_type AS ENUM ('google', 'facebook', 'us');
+CREATE TYPE provider_type AS ENUM ('google', 'github', 'apple', 'us');
 
 CREATE TABLE users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    pseudo text UNIQUE NOT NULL,
+    pseudo text NOT NULL,
     email text,
     password_hash text,
     name text,
@@ -21,6 +21,12 @@ CREATE TABLE users (
     cgu_accepted_at timestamptz NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now()
 );
+
+CREATE UNIQUE INDEX users_pseudo_lower_key ON users (lower(pseudo));
+CREATE UNIQUE INDEX users_email_lower_key ON users (lower(email)) WHERE email IS NOT NULL;
+
+ALTER TABLE users
+    ADD CONSTRAINT users_pseudo_format CHECK (pseudo ~ '^[A-Za-z0-9_.]{3,30}$');
 
 CREATE TABLE auth_provider (
     id_user BIGINT NOT NULL REFERENCES users(id),

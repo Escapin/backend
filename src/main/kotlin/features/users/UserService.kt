@@ -1,6 +1,8 @@
 package features.users
 
 import common.ConflictException
+import common.FieldError
+import common.ValidationException
 import database.isUniqueViolation
 import features.users.validators.RegisterValidator
 import security.CompromisedPasswordChecker
@@ -42,5 +44,18 @@ class UserService(
             }
             throw e
         }
+    }
+
+
+    suspend fun isPseudoAvailable(rawPseudo: String?): PseudoAvailabilityResponse {
+        val pseudo = rawPseudo?.trim().orEmpty()
+        if (pseudo.isEmpty()) {
+            throw ValidationException(listOf(FieldError(
+                "pseudo", "required", "Query parameter 'pseudo' is required."
+            )))
+        }
+        RegisterValidator.pseudoError(pseudo)?.let { throw ValidationException(listOf(it)) }
+
+        return PseudoAvailabilityResponse(pseudo, available = !userRepository.existsByPseudo(pseudo))
     }
 }

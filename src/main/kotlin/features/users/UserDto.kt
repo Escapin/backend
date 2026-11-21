@@ -31,3 +31,7 @@ data class NewUser(
 ) {
     override fun toString() = "NewUser(pseudo=$pseudo, email=<redacted>, password=<redacted>)"
 }
+
+
+@Serializable
+data class PseudoAvailabilityResponse(val pseudo: String, val available: Boolean)

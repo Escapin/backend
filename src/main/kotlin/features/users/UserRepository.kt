@@ -1,5 +1,7 @@
 package features.users
 
+import database.tables.AuthProviders
+import database.tables.ProviderType
 import database.tables.Users
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.lowerCase
@@ -38,6 +40,14 @@ class UserRepository(private val database: R2dbcDatabase) {
             it[Users.surname] = surname
             it[Users.cguAcceptedAt] = OffsetDateTime.now(ZoneOffset.UTC)
         }
-        UserResponse(id = inserted[Users.id].value, pseudo = pseudo, name = name, surname = surname)
+        val userId = inserted[Users.id]
+
+        AuthProviders.insert {
+            it[AuthProviders.idUser] = userId
+            it[AuthProviders.provider] = ProviderType.US
+            it[AuthProviders.providerUid] = userId.value.toString()
+        }
+
+        UserResponse(id = userId.value, pseudo = pseudo, name = name, surname = surname)
     }
 }

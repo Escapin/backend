@@ -68,5 +68,16 @@ fun Application.configureStatusPages() {
                 )
             )
         }
+
+        status(HttpStatusCode.TooManyRequests) { call, status ->
+            call.respondProblem(
+                ProblemDetail(
+                    title = status.description,
+                    status = status.value,
+                    detail = "Too many requests. Please try again later.",
+                    code = "rate_limited",
+                )
+            )
+        }
     }
 }

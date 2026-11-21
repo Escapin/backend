@@ -1,16 +1,26 @@
 package plugins
 
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.*
-import io.github.flaxoos.ktor.server.plugins.ratelimiter.implementations.*
 import io.ktor.server.application.*
-import kotlin.time.Duration.Companion.seconds
+import io.ktor.server.plugins.ratelimit.*
+import kotlin.time.Duration.Companion.minutes
+
+object RateLimits {
+    val REGISTER = RateLimitName("register")
+    val PSEUDO_CHECK = RateLimitName("pseudo-check")
+}
 
 fun Application.configureRateLimiting() {
-    install(RateLimiting) {
-        rateLimiter {
-            type = TokenBucket::class
-            capacity = 100
-            rate = 10.seconds
+    install(RateLimit) {
+        global {
+            rateLimiter(limit = 100, refillPeriod = 1.minutes)
+        }
+
+        register(RateLimits.REGISTER) {
+            rateLimiter(limit = 5, refillPeriod = 1.minutes)
+        }
+
+        register(RateLimits.PSEUDO_CHECK) {
+            rateLimiter(limit = 30, refillPeriod = 1.minutes)
         }
     }
 }

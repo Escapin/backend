@@ -23,12 +23,7 @@ object RegisterValidator {
         val errors = mutableListOf<FieldError>()
 
         val pseudo = request.pseudo.trim()
-        if (!PSEUDO_REGEX.matches(pseudo)) {
-            errors += FieldError("pseudo", "invalid_format", "Pseudo must be 3-30 characters: letters, digits, '_' or '.'.")
-
-        } else if (pseudo.lowercase() in RESERVED_PSEUDOS) {
-            errors += FieldError("pseudo", "reserved", "This pseudo is not available.")
-        }
+        pseudoError(pseudo)?.let { errors += it }
 
         val email = request.email.trim().lowercase()
         if (email.length > EMAIL_MAX_LENGTH || !EMAIL_REGEX.matches(email)) {
@@ -64,5 +59,17 @@ object RegisterValidator {
             return null
         }
         return cleaned
+    }
+
+    fun pseudoError(pseudo: String): FieldError? {
+        if (!PSEUDO_REGEX.matches(pseudo)) {
+            return FieldError("pseudo", "invalid_format", "Pseudo must be 3-30 characters: letters, digits, '_' or '.'.")
+        }
+
+        if (pseudo.lowercase() in RESERVED_PSEUDOS) {
+            return FieldError("pseudo", "reserved", "This pseudo is not available.")
+        }
+
+        return null
     }
 }
