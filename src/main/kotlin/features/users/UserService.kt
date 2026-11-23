@@ -58,4 +58,7 @@ class UserService(
 
         return PseudoAvailabilityResponse(pseudo, available = !userRepository.existsByPseudo(pseudo))
     }
+
+
+    suspend fun getProfile(userId: Long): MeResponse? = userRepository.findProfileById(userId)
 }

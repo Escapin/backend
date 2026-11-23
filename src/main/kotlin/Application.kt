@@ -10,11 +10,12 @@ fun main(args: Array<String>) {
 fun Application.module() {
     configureMonitoring()
     val database = configureDatabase()
+    val httpClient = configureHttpClient()
 
     configureSerialization()
     configureStatusPages()
-    configureSecurity()
+    configureSecurity(httpClient)
     configureRateLimiting()
     configureHttp()
-    configureRouting(database)
+    configureRouting(database, httpClient)
 }

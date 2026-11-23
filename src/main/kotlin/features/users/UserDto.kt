@@ -35,3 +35,13 @@ data class NewUser(
 
 @Serializable
 data class PseudoAvailabilityResponse(val pseudo: String, val available: Boolean)
+
+@Serializable
+data class MeResponse(
+    val id: Long,
+    val pseudo: String,
+    val email: String? = null,
+    val name: String? = null,
+    val surname: String? = null,
+    val avatarUrl: String? = null,
+)

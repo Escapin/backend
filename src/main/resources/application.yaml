@@ -5,12 +5,19 @@ ktor:
     modules:
       - ApplicationKt.module
   database:
-    url: "r2dbc:postgresql://localhost:5432/escapin"
-    user: "postgres"
-    password: "mySecretPassword"
+    url: "$DB_URL:r2dbc:postgresql://localhost:5432/escapin"
+    user: "$DB_USER:postgres"
+    password: "$DB_PASSWORD"
 
 jwt:
-  secret: "change-me"
+  secret: "$JWT_SECRET"
   issuer: "https://escapin.app/"
   audience: "escapin-app"
   realm: "Escapin API"
+
+OAuth2:
+  github:
+    client-id: "$GITHUB_CLIENT_ID"
+    client-secret: "$GITHUB_CLIENT_SECRET"
+    redirect-uri: "$GITHUB_REDIRECT_URI:http://localhost:8080/api/v1/auth/github/callback"
+    app-redirect: "$APP_REDIRECT_URI:escapin://auth"

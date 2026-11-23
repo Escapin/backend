@@ -1,6 +1,9 @@
 package features.users
 
 import io.ktor.http.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -16,7 +19,6 @@ fun Route.userRoutes(userService: UserService) {
         }
     }
 
-
     route("/users") {
         rateLimit(RateLimits.REGISTER) {
             post {
@@ -27,6 +29,17 @@ fun Route.userRoutes(userService: UserService) {
                 call.response.header(HttpHeaders.Location, "/api/v1/users/${user.id}")
                 call.respond(HttpStatusCode.Created, user)
             }
+        }
+    }
+
+    authenticate("auth-jwt") {
+        get("/me") {
+            val userId = call.principal<JWTPrincipal>()?.subject?.toLongOrNull()
+                ?: return@get call.respond(HttpStatusCode.Unauthorized)
+            val profile = userService.getProfile(userId)
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+            call.response.header(HttpHeaders.CacheControl, "no-store")
+            call.respond(profile)
         }
     }
 }

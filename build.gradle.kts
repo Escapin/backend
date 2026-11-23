@@ -31,6 +31,8 @@ dependencies {
     implementation(ktorLibs.server.statusPages)
     implementation(ktorLibs.server.swagger)
     implementation(ktorLibs.server.rateLimit)
+    implementation(ktorLibs.client.cio)
+    implementation(ktorLibs.client.contentNegotiation)
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
     implementation(libs.logback.classic)
