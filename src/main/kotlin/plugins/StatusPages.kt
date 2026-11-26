@@ -4,6 +4,7 @@ import common.ApiException
 import common.ProblemDetail
 import common.FieldError
 import common.respondProblem
+import database.isConnectionFailure
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -60,13 +61,23 @@ fun Application.configureStatusPages() {
 
         exception<Throwable> { call, cause ->
             call.application.log.error("Unhandled error on ${call.request.local.uri}", cause)
-            call.respondProblem(
+
+            // Base injoignable : 503 explicite plutôt qu'un 500 opaque.
+            val problem = if (cause.isConnectionFailure()) {
+                ProblemDetail(
+                    title = HttpStatusCode.ServiceUnavailable.description,
+                    status = HttpStatusCode.ServiceUnavailable.value,
+                    detail = "The database is unavailable. Please try again later.",
+                    code = "database_unavailable",
+                )
+            } else {
                 ProblemDetail(
                     title = HttpStatusCode.InternalServerError.description,
                     status = HttpStatusCode.InternalServerError.value,
                     code = "internal_error",
                 )
-            )
+            }
+            call.respondProblem(problem)
         }
 
         status(HttpStatusCode.TooManyRequests) { call, status ->

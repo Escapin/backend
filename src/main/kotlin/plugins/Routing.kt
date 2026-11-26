@@ -2,6 +2,8 @@ package plugins
 
 import features.auth.AuthService
 import features.auth.GithubClient
+import features.auth.GoogleAuthService
+import features.auth.JwksGoogleTokenVerifier
 import features.auth.authRoutes
 import features.users.UserRepository
 import features.users.UserService
@@ -17,11 +19,17 @@ import security.TokenService
 
 fun Application.configureRouting(database: R2dbcDatabase, httpClient: HttpClient) {
     val userRepository = UserRepository(database)
+    val tokenService = TokenService.from(environment.config)
 
     val authService = AuthService(
         userRepository = userRepository,
         githubClient = GithubClient(httpClient),
-        tokenService = TokenService.from(environment.config),
+        tokenService = tokenService,
+    )
+    val googleAuthService = GoogleAuthService(
+        userRepository = userRepository,
+        tokenVerifier = JwksGoogleTokenVerifier(environment.config.property("OAuth2.google.web-client-id").getString()),
+        tokenService = tokenService,
     )
     val userService = UserService(
         userRepository = userRepository,
@@ -36,7 +44,7 @@ fun Application.configureRouting(database: R2dbcDatabase, httpClient: HttpClient
         }
 
         route("/api/v1") {
-            authRoutes(authService, appRedirectUri)
+            authRoutes(authService, googleAuthService, appRedirectUri)
             userRoutes(userService)
         }
     }
