@@ -3,8 +3,11 @@ package features.users
 import database.tables.AuthProviders
 import database.tables.ProviderType
 import database.tables.Users
+import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.flow.toList
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.insert
@@ -62,6 +65,24 @@ class UserRepository(private val database: R2dbcDatabase) {
                 ?.value
         }
 
+    /** Compte lié à cette identité externe (ex. `sub` Google), `null` si aucun. */
+    suspend fun findUserByProvider(provider: ProviderType, providerUid: String): UserResponse? =
+        suspendTransaction(database) {
+            (AuthProviders innerJoin Users)
+                .selectAll()
+                .where { (AuthProviders.provider eq provider) and (AuthProviders.providerUid eq providerUid) }
+                .singleOrNull()
+                // Ligne jointe → profil public.
+                ?.let { row ->
+                    UserResponse(
+                        id = row[Users.id].value,
+                        pseudo = row[Users.pseudo],
+                        name = row[Users.name],
+                        surname = row[Users.surname],
+                    )
+                }
+        }
+
     suspend fun createFromProvider(
         provider: ProviderType,
         providerUid: String,
@@ -69,11 +90,13 @@ class UserRepository(private val database: R2dbcDatabase) {
         email: String?,
         name: String?,
         avatarUrl: String?,
+        surname: String? = null,
     ): Long = suspendTransaction(database) {
         val inserted = Users.insert {
             it[Users.pseudo] = pseudo
             it[Users.email] = email
             it[Users.name] = name
+            it[Users.surname] = surname
             it[Users.urlPhotoProfil] = avatarUrl
             it[Users.cguAcceptedAt] = OffsetDateTime.now(ZoneOffset.UTC)
         }

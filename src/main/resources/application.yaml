@@ -21,3 +21,6 @@ OAuth2:
     client-secret: "$GITHUB_CLIENT_SECRET"
     redirect-uri: "$GITHUB_REDIRECT_URI:http://localhost:8080/api/v1/auth/github/callback"
     app-redirect: "$APP_REDIRECT_URI:escapin://auth"
+  google:
+    # Client OAuth *Web* (Google Cloud Console) : audience attendue dans l'ID token. Public, pas un secret.
+    web-client-id: "$GOOGLE_WEB_CLIENT_ID:356022938722-r58qelahb74pu4lshm6pgta4qap7f0qu.apps.googleusercontent.com"

@@ -16,8 +16,70 @@ paths:
             text/plain:
               schema:
                 type: "string"
+  /auth/google:
+    post:
+      summary: "Connexion / inscription avec Google"
+      description: >
+        Échange un ID token Google contre un JWT Escapin.
+        Compte inconnu : 404 registration_required, puis renvoyer le même idToken avec pseudo et cguAccepted.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleAuthRequest"
+      responses:
+        "200":
+          description: "Connecté"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: "Corps invalide (malformed_request)"
+        "401":
+          description: "ID token invalide ou expiré (invalid_google_token)"
+        "404":
+          description: "Aucun compte lié : envoyer pseudo + cguAccepted (registration_required)"
+        "409":
+          description: "E-mail déjà utilisé par un compte mot de passe (email_taken) ou pseudo pris (pseudo_taken)"
+        "422":
+          description: "Pseudo invalide/réservé ou CGU non acceptées (validation_failed)"
+        "429":
+          description: "Trop de requêtes (rate_limited)"
+        "503":
+          description: "Clés publiques Google injoignables (google_unavailable) ou base indisponible (database_unavailable)"
 components:
   schemas:
+    GoogleAuthRequest:
+      type: object
+      required: [idToken]
+      properties:
+        idToken:
+          type: string
+        pseudo:
+          type: string
+          description: "Seulement à l'inscription"
+        cguAccepted:
+          type: boolean
+          description: "Seulement à l'inscription, doit valoir true"
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            pseudo:
+              type: string
+            name:
+              type: string
+            surname:
+              type: string
     PingResponse:
       type: object
       properties:

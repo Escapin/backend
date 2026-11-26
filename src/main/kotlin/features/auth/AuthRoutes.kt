@@ -4,13 +4,16 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.ratelimit.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import plugins.RateLimits
 
-fun Route.authRoutes(authService: AuthService, appRedirectUri: String) {
+fun Route.authRoutes(authService: AuthService, googleAuthService: GoogleAuthService, appRedirectUri: String) {
     route("/auth") {
         rateLimit(RateLimits.OAUTH) {
+            googleAuthRoute(googleAuthService)
+
             authenticate("github") {
                 get("/github") { }
 
@@ -33,5 +36,16 @@ fun Route.authRoutes(authService: AuthService, appRedirectUri: String) {
                 }
             }
         }
+    }
+}
+
+/** `POST /auth/google`, séparée pour être testable sans le provider OAuth GitHub. */
+fun Route.googleAuthRoute(googleAuthService: GoogleAuthService) {
+    post("/google") {
+        val request = call.receive<GoogleAuthRequest>()
+        val response = googleAuthService.login(request)
+
+        call.response.header(HttpHeaders.CacheControl, "no-store")
+        call.respond(response)
     }
 }
